@@ -2,7 +2,6 @@
 { config, pkgs, my-xmobar, ... }:
 let
   user = import ./user.nix;
-  compiler = "ghc8107";
 in
 {
   nixpkgs.config = {
@@ -42,6 +41,9 @@ in
       yq
       ### my packages
       my-xmobar
+      ### font
+      rounded-mgenplus
+      (import ./external/fonts/illusion { inherit fetchzip unzip; })
     ];
     file = {
       # neovim
@@ -54,6 +56,8 @@ in
       ".config/tmux/real-tmux.conf".source = ./files/.config/tmux/.tmux.conf;
       # xmonad: set LOCALE_ARCHIVE -- XXX もっと良い方法があるのでは
       ".xmonad/xmonad-session-rc".source = ./files/.xmonad/xmonad-session-rc;
+      # font
+      ".config/fontconfig/conf.d/20-illusion-fonts.conf".source = ./files/.config/fontconfig/conf.d/20-illusion-fonts.conf;
       # my script
       ".local/bin/myfzf".source = ./files/.local/bin/myfzf;
       ".local/bin/myclip".source = ./files/.local/bin/myclip;
@@ -296,58 +300,49 @@ in
     zoxide = {
       enable = true;
     };
-    xmobar = {
-      enable = false;
-      extraConfig = ''
-        Config
-          { font = "xft:Rounded Mgen+ 1mn:size=12"
-          , bgColor = "#1a1e1b"
-          , fgColor = "#676767"
-          , lowerOnStart = True
-          , position = TopH 40
-          , commands    =
-              [ Run Cpu              [ "-t"      , "Cpu: <total>%"
-                                     , "-L"      , "3"
-                                     , "-H"      , "50"
-                                     , "--normal", "green"
-                                     , "--high"  , "red"
-                                     ] 10
-              , Run Network "wlp2s0" [ "-L"       , "40"
-                                     , "-H"       , "200"
-                                     , "--normal" , "#d3d7cf"
-                                     , "--high"   , "#88b986"
-                                     , "-t"       , "<rx>/<tx>"
-                                     ] 10
-              , Run Memory           [ "-t"       , "Mem: <usedratio>%"
-                                     , "-L"       , "40"
-                                     , "-H"       , "90"
-                                     , "--normal" , "#d3d7cf"
-                                     , "--high"   , "#c16666"
-                                     ] 10
-              , Run Date "%a %m/%d %H:%M" "date" 10
-              , Run Volume "pulse" "Master" ["--", "-O", "[on]"] 10
-              , Run Com "dropbox" ["status"] "dropbox" 50
-              , Run Com "xmobar-volume" [] "volume" 10
-              , Run StdinReader
-                       , Run BatteryP         ["BAT0"]
-                                                [ "-t"       , "Bat: <acstatus>"
-                                                , "-L"       , "20"
-                                                , "-H"       , "80"
-                                                , "--low"    , "#c16666"
-                                                , "--normal" , "#d3d7cf"
-                                                , "--"
-                                                      , "-o" , "<left>% (<timeleft>)"
-                                                      , "-O" , "Charging <left>%"
-                                                      , "-i" , "<left>%"
-                                                ] 50
-              ]
-          , sepChar     = "%"
-          , alignSep    = "}{"
-          , template    = "  %StdinReader% }{ %wlp2s0% | %cpu% | %memory% | Dropbox: %dropbox% | %pulse:Master% | %battery% | %date%  "
-          }
-      '';
+    gnome-terminal = {
+      enable = true;
+      showMenubar = false;
+      profile = {
+        test = {
+          default = true;
+          visibleName = "test";
+          font = "Illusion N 13";
+          allowBold = true;
+          audibleBell = false;
+          colors = {
+            foregroundColor = "#cacacececdcd";
+            backgroundColor = "#111112121313";
+            boldColor = "#cacacececdcd";
+            cursor = {
+              foreground = "#111112121313";
+              background = "#cacacececdcd";
+            };
+            palette = [
+              "#323232323232"
+              "#c2c228283232"
+              "#8e8ec4c43d3d"
+              "#e0e0c6c64f4f"
+              "#4343a5a5d5d5"
+              "#8b8b5757b5b5"
+              "#8e8ec4c43d3d"
+              "#eeeeeeeeeeee"
+              "#323232323232"
+              "#c2c228283232"
+              "#8e8ec4c43d3d"
+              "#e0e0c6c64f4f"
+              "#4343a5a5d5d5"
+              "#8b8b5757b5b5"
+              "#8e8ec4c43d3d"
+              "#ffffffffffff"
+            ];
+
+          };
+        };
+      };
     };
   };
+  fonts.fontconfig.enable = true;
   services.dropbox.enable = true;
   xsession.windowManager.xmonad = {
     # XXX ~/.xmonad/xmonad-session-rc を以下の内容で置く必要がある。
@@ -381,8 +376,5 @@ in
   # * 未対応
   #   * gnome-terminal
   #   * tomcat
-  # * 外部依存が残っている部分
-  #   * xmonad システムに認識させる
-  #     * /usr/share/applications/xmonad.desktop
 }
 # vim:foldmethod=indent:
