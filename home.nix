@@ -94,6 +94,7 @@ in
           "coc.preferences.formatOnSaveFiletypes" = [
             "nix"
             "json"
+            "javascript"
             "typescript"
             "typescriptreact"
             "haskell"
