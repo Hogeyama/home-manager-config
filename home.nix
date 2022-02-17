@@ -1,9 +1,8 @@
 # https://rycee.gitlab.io/home-manager/options.html
-{ config, pkgs, ... }:
+{ config, pkgs, my-xmobar, ... }:
 let
   user = import ./user.nix;
   compiler = "ghc8107";
-  my-xmobar = import ./pkgs/my-xmobar { inherit pkgs compiler; };
 in
 {
   nixpkgs.config = {
