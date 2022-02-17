@@ -1,0 +1,7 @@
+#!/bin/bash
+TMP=/tmp/tmp
+# TMP=%(mktemp)
+# trap 'rm -f $TMP' EXIT
+cat - >"$TMP"
+cat "$TMP" | xsel -p
+cat "$TMP" | xsel -b
