@@ -102,7 +102,7 @@ in
             "typescriptreact"
             "haskell"
           ];
-          "codeLens.enable" = true;
+          "codeLens.enable" = false;
           languageserver = {
             haskell = {
               command = "haskell-language-server-wrapper";
