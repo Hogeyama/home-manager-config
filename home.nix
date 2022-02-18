@@ -1,5 +1,5 @@
 # https://rycee.gitlab.io/home-manager/options.html
-{ config, pkgs, my-xmobar, ... }:
+{ config, pkgs, ... }:
 let
   user = import ./user.nix;
 in
@@ -8,10 +8,6 @@ in
     allowUnfree = true;
   };
   home = {
-    inherit (user.home) username homeDirectory;
-    language = {
-      base = "ja_JP.UTF-8";
-    };
     packages = with pkgs; [
       aws-sam-cli
       awscli2
@@ -40,7 +36,6 @@ in
       wget
       yq
       ### my packages
-      my-xmobar
       ### font
       rounded-mgenplus
       (import ./external/fonts/illusion { inherit fetchzip unzip; })
@@ -66,7 +61,6 @@ in
     };
     sessionVariables = {
       EDITOR = "nvim";
-      LANG = "ja_JP.UTF-8";
     };
   };
   programs = {
@@ -282,7 +276,7 @@ in
       enable = true;
       inherit (user.git) userName userEmail;
       extraConfig = {
-        core.editor = "nvr-git";
+        #core.editor = "nvr-git";
         core.autoCRLF = false;
         core.autoLF = false;
         fetch.prune = true;
@@ -301,7 +295,7 @@ in
       enable = true;
     };
     gnome-terminal = {
-      enable = true;
+      enable = false;
       showMenubar = false;
       profile = {
         test = {
@@ -342,13 +336,13 @@ in
       };
     };
   };
-  fonts.fontconfig.enable = true;
+  #fonts.fontconfig.enable = true;
   services.dropbox.enable = true;
   xsession.windowManager.xmonad = {
     # XXX ~/.xmonad/xmonad-session-rc を以下の内容で置く必要がある。
     #   export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive
     # もっといい方法がないか探そう
-    enable = true;
+    enable = false;
     config = ./files/.xmonad/xmonad.hs;
     haskellPackages = pkgs.haskell.packages.ghc8107.override {
       overrides = haskellPackagesNew: haskellPackagesOld: {
