@@ -1,7 +1,3 @@
-#!/bin/bash
-TMP=/tmp/tmp
-# TMP=%(mktemp)
-# trap 'rm -f $TMP' EXIT
-cat - >"$TMP"
+#!/usr/bin/env bash
 cat "$TMP" | xsel -p
 cat "$TMP" | xsel -b

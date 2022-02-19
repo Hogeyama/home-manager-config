@@ -771,7 +771,7 @@ let g:init_vim = $XDG_CONFIG_HOME != ""
                   \ : $HOME . "/.config" . "/nvim/init.vim"
 command! EditInitVim   execute "e " .  g:init_vim
 command! SourceInitVim execute "so " .  g:init_vim
-au WinLeave * let g:last_win = winnr()
+au WinLeave * let g:last_win = winnr() | let g:last_file = expand("%:p")
 au TabLeave * let g:last_tab = tabpagenr()
 command! -nargs=0 MoveToLastWin execute "normal! ".g:last_win."<C-w><C-w>"
 command! -nargs=0 MoveToLastTab execute "tabnext ".g:last_tab

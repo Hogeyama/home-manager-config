@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -eu
 set -o pipefail
 
@@ -93,6 +93,7 @@ setup() {
     --bind  "ctrl-f:reload['$PROG' reload fd]+change-prompt[files>]"
     --bind  "ctrl-u:reload['$PROG' reload fd --cd-up]+change-prompt[files>]"
     --bind  "ctrl-l:reload['$PROG' reload fd --cd {}]+change-prompt[files>]+clear-query"
+    --bind  "ctrl-e:reload['$PROG' reload fd --cd-last-file]+change-prompt[files>]+clear-query"
     --bind  "ctrl-b:reload['$PROG' reload buffer]+change-prompt[buffer>]"
     --bind  "ctrl-h:reload['$PROG' reload mru]+change-prompt[mru>]"
     --bind  "ctrl-d:reload['$PROG' reload mru-dir]+change-prompt[mru-dir>]"
@@ -346,6 +347,13 @@ do_reload() {
             ;;
           --cd-up)
             change_directory ..
+            ;;
+          --cd-last-file)
+            local _file
+            _file=$(realpath -e "$(nvr --remote-expr 'g:last_file')" 2>/dev/null)
+            if [[ -n "$_file" ]]; then
+              change_directory "$(dirname "$_file")"
+            fi
             ;;
           *)
             echo "$PROG: reload: fd: unknown option $1" >&2

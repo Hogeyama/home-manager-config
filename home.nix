@@ -14,7 +14,6 @@ in
       bat
       curl
       deno
-      # TODO docker group に自身を追加する
       docker
       docker-compose
       fd
@@ -35,6 +34,8 @@ in
       unar
       wget
       yq
+      tridactyl-native # for firefox
+      neovim-remote
       ### my packages
       ### font
       rounded-mgenplus
@@ -49,14 +50,13 @@ in
       };
       # tmux
       ".config/tmux/real-tmux.conf".source = ./files/.config/tmux/.tmux.conf;
-      # xmonad: set LOCALE_ARCHIVE -- XXX もっと良い方法があるのでは
-      ".xmonad/xmonad-session-rc".source = ./files/.xmonad/xmonad-session-rc;
       # font
       ".config/fontconfig/conf.d/20-illusion-fonts.conf".source = ./files/.config/fontconfig/conf.d/20-illusion-fonts.conf;
+      # firefox
+      ".local/share/tridactyl/native_main".source = ./files/.local/share/tridactyl/native_main;
       # my script
       ".local/bin/myfzf".source = ./files/.local/bin/myfzf;
       ".local/bin/myclip".source = ./files/.local/bin/myclip;
-      ".local/bin/my-xmobar-volume".source = ./files/.local/bin/my-xmobar-volume;
       ".local/bin/my-xmonad-borderwidth".source = ./files/.local/bin/my-xmonad-borderwidth;
     };
     sessionVariables = {
@@ -175,8 +175,86 @@ in
     };
     tmux = {
       enable = true;
+      terminal = "tmux-256color";
+      plugins = with pkgs; [
+        {
+          plugin = tmuxPlugins.logging;
+          extraConfig = ''
+            # log
+            set-option -g @logging_key "M-p"
+            set-option -g @logging-path "$HOME/log/tmux"
+            set-option -g @logging-filename "%Y%m%dT%H%M%S.log"
+            # history
+            set-option -g @save-complete-history-key "P"
+            set-option -g @save-complete-history-path "$HOME/log/tmux"
+            set-option -g @save-complete-history-filename "%Y%m%dT%H%M%S.history"
+            set-option -g history-limit 100000
+            # screen-capture
+            set-option -g @screen-capture-key "M-Z"
+          '';
+        }
+        {
+          plugin = tmuxPlugins.jump;
+        }
+        {
+          plugin = tmuxPlugins.nord;
+        }
+      ];
       extraConfig = ''
-        source  ~/.config/tmux/real-tmux.conf
+        ################################################################################
+        # Basic
+        ################################################################################
+
+        # prefix=C-q
+        set -g prefix C-q
+        # Enable Italic
+        set-option -g default-terminal "tmux-256color"
+        # Enable True Color on xterm-256color
+        set-option -ga terminal-overrides ",xterm-256color:Tc"
+        # status bar on top
+        set-option -g status-position top
+        # no mouse
+        set-option -g mouse off
+
+        ################################################################################
+        # Pane
+        ################################################################################
+
+        # vimのキーバインドでペインを移動する
+        bind h select-pane -L
+        bind j select-pane -D
+        bind k select-pane -U
+        bind l select-pane -R
+
+        # vimのキーバインドでペインをリサイズする
+        bind -r H resize-pane -L 5
+        bind -r J resize-pane -D 5
+        bind -r K resize-pane -U 5
+        bind -r L resize-pane -R 5
+
+        # | でペインを縦分割する
+        bind | split-window -h
+
+        # - でペインを縦分割する
+        bind - split-window -v
+
+        ################################################################################
+        # Copy / Paste
+        ################################################################################
+
+        setw -g mode-keys vi
+
+        bind C-q copy-mode
+
+        bind -T copy-mode-vi v send -X begin-selection
+        bind -T copy-mode-vi V send -X select-line
+        bind -T copy-mode-vi C-v send -X rectangle-toggle
+
+        bind -T copy-mode-vi K send-keys -X -N 5 scroll-up
+        bind -T copy-mode-vi J send-keys -X -N 5 scroll-down
+
+        bind -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "myclip"
+        bind -T copy-mode-vi y     send-keys -X copy-pipe-and-cancel "myclip"
       '';
     };
     zsh = {
