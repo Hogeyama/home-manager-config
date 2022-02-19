@@ -1,5 +1,5 @@
 # https://rycee.gitlab.io/home-manager/options.html
-{ config, pkgs, ... }:
+{ config, pkgs, unstablePkgs ? pkgs, ... }:
 let
   user = import ./user.nix;
 in
@@ -9,14 +9,15 @@ in
   };
   home = {
     packages = with pkgs; [
-      aws-sam-cli
       awscli2
+      aws-sam-cli
       bat
       curl
       deno
       docker
       docker-compose
       fd
+      feh
       fuse
       fzf
       go
@@ -25,17 +26,16 @@ in
       htop
       jq
       mercurial
+      neovim-remote
       nodejs
       nodePackages.npm
-      # openjdk8
-      openjdk11
       ripgrep
       rnix-lsp
+      tridactyl-native # for firefox
       unar
+      vifm
       wget
       yq
-      tridactyl-native # for firefox
-      neovim-remote
       ### my packages
       ### font
       rounded-mgenplus
@@ -54,6 +54,8 @@ in
       ".config/fontconfig/conf.d/20-illusion-fonts.conf".source = ./files/.config/fontconfig/conf.d/20-illusion-fonts.conf;
       # firefox
       ".local/share/tridactyl/native_main".source = ./files/.local/share/tridactyl/native_main;
+      # wallpaper
+      "Pictures/reflextion.jpg".source = ./files/Pictures/reflexion.jpg;
       # my script
       ".local/bin/myfzf".source = ./files/.local/bin/myfzf;
       ".local/bin/myclip".source = ./files/.local/bin/myclip;
@@ -69,12 +71,11 @@ in
     };
     direnv = {
       enable = true;
-      nix-direnv = {
-        enable = true;
-      };
+      nix-direnv.enable = true;
     };
     neovim = {
       enable = true;
+      package = unstablePkgs.neovim-unwrapped;
       withNodeJs = true;
       withPython3 = true;
       extraConfig = ''
@@ -414,39 +415,6 @@ in
       };
     };
   };
-  #fonts.fontconfig.enable = true;
   services.dropbox.enable = true;
-  xsession.windowManager.xmonad = {
-    # XXX ~/.xmonad/xmonad-session-rc を以下の内容で置く必要がある。
-    #   export LOCALE_ARCHIVE=/usr/lib/locale/locale-archive
-    # もっといい方法がないか探そう
-    enable = false;
-    config = ./files/.xmonad/xmonad.hs;
-    haskellPackages = pkgs.haskell.packages.ghc8107.override {
-      overrides = haskellPackagesNew: haskellPackagesOld: {
-        xmonad = haskellPackagesOld.xmonad_0_17_0;
-        xmonad-contrib = haskellPackagesOld.xmonad-contrib_0_17_0;
-        xmobar = haskellPackagesOld.xmobar.overrideAttrs (old: {
-          configureFlags = "-f all_extensions";
-        });
-      };
-    };
-    extraPackages = haskellPackags: with haskellPackags; [
-      containers
-      filepath
-      process
-      rio
-      split
-      transformers
-      xmonad
-      xmonad-contrib
-      X11
-      GenericPretty
-    ];
-  };
-  # TODO
-  # * 未対応
-  #   * gnome-terminal
-  #   * tomcat
 }
 # vim:foldmethod=indent:
